@@ -13,7 +13,7 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 800})
+  mainWindow = new BrowserWindow({width: 320, height: 350})
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -24,7 +24,10 @@ function createWindow () {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
-  mainWindow.toggleDevTools();
+
+  //google developer tools
+  // mainWindow.toggleDevTools();
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
