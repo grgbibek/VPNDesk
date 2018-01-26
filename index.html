@@ -39,6 +39,18 @@
 
 
     <script>
+        const electron = require('electron');
+        const{ipcRenderer} = electron;
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', submitForm);
+
+        function submitForm(e){
+          e.preventDefault();
+          //sending item to main.js
+          let switcher = true;
+          ipcRenderer.send('item:login', switcher);
+        }
       // You can also require other files to run in this process
       require('./renderer.js')
     </script>

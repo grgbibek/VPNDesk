@@ -1,15 +1,14 @@
 const electron = require('electron')
 // Module to control application life.
-const app = electron.app
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
+const {app, BrowserWindow, Menu, ipcMain} = electron;
 
 const path = require('path')
 const url = require('url')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
+let addWindow;
 
 function createWindow () {
   // Create the browser window.
@@ -28,12 +27,91 @@ function createWindow () {
   //google developer tools
   // mainWindow.toggleDevTools();
 
+  //Build menu from template
+  const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+  //Insert menu
+  Menu.setApplicationMenu(mainMenu);
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+  })
+}
+
+//handle create add window
+function createAddWindow(){
+  // Create the browser window.
+  addWindow = new BrowserWindow(
+    {
+       width: 450,
+       height: 530,
+       title: ' Protection is not active'
+     }
+     )
+
+  // and load the index.html of the app.
+  addWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'addWindow.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
+
+  //Garbage collection handle
+  addWindow.on('close',function(){
+    addWindow = null;
+  });
+}
+
+//Catch item from addWindow.html
+ipcMain.on('item:login', function(e,switcher){
+  //sending to index.html
+  if (switcher){
+    createAddWindow();
+    mainWindow.close();
+  }
+
+
+})
+
+//Create menu template
+const mainMenuTemplate = [
+  {
+  label:'File',
+  submenu: [
+    {
+      label: 'Quit',
+      accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
+      click(){
+        app.quit();
+        }
+     }
+   ]
+  }
+];
+
+//If mac, add empty object to menu,so that the menu works perfectly fine
+if(process.platform == 'darwin'){
+  mainMenuTemplate.unshift({}); //the unshift function is used to push an object in the beginning (in here pushing in the beginning of the mainMenuTemplate)
+}
+
+if (process.env.MODE_ENV !== 'production'){
+  mainMenuTemplate.push({
+    label:'Developer Tools',
+    submenu: [
+      {
+        label: 'Toggle DevTools',
+        accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+        click(item,focusedWindow){
+          focusedWindow.toggleDevTools();
+        }
+      },
+      {
+        role: 'reload'
+      }
+    ]
   })
 }
 
